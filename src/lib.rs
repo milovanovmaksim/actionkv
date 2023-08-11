@@ -84,6 +84,7 @@ impl ActionKV {
 
     pub fn insert(&mut self, key: &ByteStr, value: &ByteStr) ->io::Result<()> {
         let position = self.insert_but_ignore_index(key, value)?;
+        println!("{}", position);
         self.index.insert(key.to_vec(), position);
         Ok(())
     }
@@ -166,3 +167,26 @@ impl ActionKV {
 }
 
 
+#[cfg(test)]
+mod tests {
+    use super::ActionKV;
+
+    fn init_db() -> ActionKV {
+        let path = std::path::Path::new("test_db");
+        let mut store = ActionKV::open(path).expect("unable to open file");
+        store.load().expect("unable to load data");
+        store
+
+    }
+    #[test]
+    fn test_get_action() {
+        let mut store = init_db();
+        let key = "apple";
+        let value = "100";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        store.load().unwrap();
+        let value_from_db = store.get(key.as_bytes()).unwrap();
+        assert_eq!(value_from_db.unwrap(), value.as_bytes());
+    }
+
+}
