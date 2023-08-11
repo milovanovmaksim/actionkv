@@ -186,7 +186,7 @@ mod test {
 
     #[test]
     fn test_get_action() {
-        let fname = "test_get";
+        let fname = "test_db";
         let mut store = init_db(fname);
         let key = "apple";
         let value = "100";
@@ -198,7 +198,7 @@ mod test {
 
     #[test]
     fn test_find_action() {
-        let fname = "test_find";
+        let fname = "test_db";
         let mut store = init_db(fname);
         let key = "apple";
         let value = "100";
@@ -211,7 +211,7 @@ mod test {
 
     #[test]
     fn test_update_action() {
-        let fname = "test_update";
+        let fname = "test_db";
         let mut store = init_db(fname);
         let key = "apple";
         let value = "100";
@@ -220,6 +220,19 @@ mod test {
         store.update(key.as_bytes(), new_value.as_bytes()).unwrap();
         let value_from_db = store.get(key.as_bytes()).unwrap().unwrap();
         assert_eq!(new_value.as_bytes(), value_from_db);
+        clear_db(fname).unwrap();
+    }
+
+    #[test]
+    fn test_delete_action() {
+        let fname = "test_db";
+        let mut store = init_db(fname);
+        let key = "apple";
+        let value = "100";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        store.delete(key.as_bytes()).unwrap();
+        let value_from_db = store.get(key.as_bytes()).unwrap();
+        assert_eq!(Some(vec![]), value_from_db);
         clear_db(fname).unwrap();
     }
 }
