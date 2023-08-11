@@ -208,4 +208,18 @@ mod test {
         assert_eq!(value_from_db.unwrap(), (*pos, value.as_bytes().to_vec()));
         clear_db(fname).unwrap();
     }
+
+    #[test]
+    fn test_update_action() {
+        let fname = "test_update";
+        let mut store = init_db(fname);
+        let key = "apple";
+        let value = "100";
+        let new_value = "200";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        store.update(key.as_bytes(), new_value.as_bytes()).unwrap();
+        let value_from_db = store.get(key.as_bytes()).unwrap().unwrap();
+        assert_eq!(new_value.as_bytes(), value_from_db);
+        clear_db(fname).unwrap();
+    }
 }
