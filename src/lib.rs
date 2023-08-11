@@ -189,4 +189,15 @@ mod tests {
         assert_eq!(value_from_db.unwrap(), value.as_bytes());
     }
 
+    #[test]
+    fn test_find_action() {
+        let mut store = init_db();
+        let key = "apple";
+        let value = "100";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        store.load().unwrap();
+        let value_from_db = store.find(key.as_bytes()).unwrap();
+        let pos = store.index.get(key.as_bytes()).unwrap();
+        assert_eq!(value_from_db.unwrap(), (*pos, value.as_bytes().to_vec()));
+    }
 }
