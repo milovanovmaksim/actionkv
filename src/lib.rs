@@ -84,7 +84,6 @@ impl ActionKV {
 
     pub fn insert(&mut self, key: &ByteStr, value: &ByteStr) ->io::Result<()> {
         let position = self.insert_but_ignore_index(key, value)?;
-        println!("{}", position);
         self.index.insert(key.to_vec(), position);
         Ok(())
     }
@@ -168,36 +167,47 @@ impl ActionKV {
 
 
 #[cfg(test)]
-mod tests {
+mod test {
     use super::ActionKV;
+    use std::{fs, ffi::OsStr, path::Path};
 
-    fn init_db() -> ActionKV {
-        let path = std::path::Path::new("test_db");
+    fn init_db<P: AsRef<OsStr>>(fname: P) -> ActionKV {
+        let path = std::path::Path::new(&fname);
         let mut store = ActionKV::open(path).expect("unable to open file");
         store.load().expect("unable to load data");
         store
-
     }
+
+    fn clear_db<P: AsRef<Path>>(fname: P) -> std::io::Result<()>{
+        fs::remove_file(fname)?;
+        Ok(())
+    }
+
+
     #[test]
     fn test_get_action() {
-        let mut store = init_db();
+        let fname = "test_get";
+        let mut store = init_db(fname);
         let key = "apple";
         let value = "100";
         store.insert(key.as_bytes(), value.as_bytes()).unwrap();
-        store.load().unwrap();
+        store.load().expect("unable to load data");
         let value_from_db = store.get(key.as_bytes()).unwrap();
         assert_eq!(value_from_db.unwrap(), value.as_bytes());
+        clear_db(fname).unwrap();
     }
 
     #[test]
     fn test_find_action() {
-        let mut store = init_db();
+        let fname = "test_find";
+        let mut store = init_db(fname);
         let key = "apple";
         let value = "100";
         store.insert(key.as_bytes(), value.as_bytes()).unwrap();
-        store.load().unwrap();
+        store.load().expect("unable to load data");
         let value_from_db = store.find(key.as_bytes()).unwrap();
         let pos = store.index.get(key.as_bytes()).unwrap();
         assert_eq!(value_from_db.unwrap(), (*pos, value.as_bytes().to_vec()));
+        clear_db(fname).unwrap();
     }
 }
