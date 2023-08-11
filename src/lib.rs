@@ -183,6 +183,15 @@ mod test {
         Ok(())
     }
 
+    #[test]
+    fn test_create_file_db() {
+        let fname = "test_db";
+        let path = std::path::Path::new(fname);
+        let _ = ActionKV::open(path).expect("unable to open file");
+        assert!(path.exists());
+        clear_db(fname).unwrap();
+    }
+
 
     #[test]
     fn test_get_action() {
