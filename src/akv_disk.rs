@@ -46,11 +46,15 @@ fn main() {
                 None => eprintln!("{:?} not found", key),
                 Some(&i) => {
                     let kv = store.get_at(i).unwrap();
-                    println!("{:?}", kv.value);
+                    let val = String::from_utf8(kv.value).expect("Found invalid UTF-8");
+                    println!("{:?}", val);
                 }
             }
         }
-        "delete" => store.delete(key.as_bytes()).unwrap(),
+        "delete" => {
+            store.delete(key.as_bytes()).unwrap();
+            store_index_on_disk(&mut store, INDEX_KEY);
+         },
         "insert" => {
             let value: &str = maybe_value.expect(&USAGE).as_ref();
             store.insert(key.as_bytes(), value.as_bytes()).unwrap();
@@ -59,6 +63,7 @@ fn main() {
         "update" => {
             let value: &str = maybe_value.expect(&USAGE).as_ref();
             store.update(key.as_bytes(), value.as_bytes()).unwrap();
+            store_index_on_disk(&mut store, INDEX_KEY);
         }
         "find" => match store.find(key.as_bytes()).unwrap() {
             None => println!("{:?} not found", key),
