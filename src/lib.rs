@@ -166,3 +166,82 @@ impl ActionKV {
 }
 
 
+#[cfg(test)]
+mod test {
+    use super::ActionKV;
+    use std::{fs, ffi::OsStr, path::Path};
+
+    fn init_db<P: AsRef<OsStr>>(fname: P) -> ActionKV {
+        let path = std::path::Path::new(&fname);
+        let mut store = ActionKV::open(path).expect("unable to open file");
+        store.load().expect("unable to load data");
+        store
+    }
+
+    fn clear_db<P: AsRef<Path>>(fname: P) -> std::io::Result<()>{
+        fs::remove_file(fname)?;
+        Ok(())
+    }
+
+    #[test]
+    fn test_create_file_db() {
+        let fname = "test_db";
+        let path = std::path::Path::new(fname);
+        let _ = ActionKV::open(path).expect("unable to open file");
+        assert!(path.exists());
+        clear_db(fname).unwrap();
+    }
+
+
+    #[test]
+    fn test_get_action() {
+        let fname = "test_db";
+        let mut store = init_db(fname);
+        let key = "apple";
+        let value = "100";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        let value_from_db = store.get(key.as_bytes()).unwrap();
+        assert_eq!(value_from_db.unwrap(), value.as_bytes());
+        clear_db(fname).unwrap();
+    }
+
+    #[test]
+    fn test_find_action() {
+        let fname = "test_db";
+        let mut store = init_db(fname);
+        let key = "apple";
+        let value = "100";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        let value_from_db = store.find(key.as_bytes()).unwrap();
+        let pos = store.index.get(key.as_bytes()).unwrap();
+        assert_eq!(value_from_db.unwrap(), (*pos, value.as_bytes().to_vec()));
+        clear_db(fname).unwrap();
+    }
+
+    #[test]
+    fn test_update_action() {
+        let fname = "test_db";
+        let mut store = init_db(fname);
+        let key = "apple";
+        let value = "100";
+        let new_value = "200";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        store.update(key.as_bytes(), new_value.as_bytes()).unwrap();
+        let value_from_db = store.get(key.as_bytes()).unwrap().unwrap();
+        assert_eq!(new_value.as_bytes(), value_from_db);
+        clear_db(fname).unwrap();
+    }
+
+    #[test]
+    fn test_delete_action() {
+        let fname = "test_db";
+        let mut store = init_db(fname);
+        let key = "apple";
+        let value = "100";
+        store.insert(key.as_bytes(), value.as_bytes()).unwrap();
+        store.delete(key.as_bytes()).unwrap();
+        let value_from_db = store.get(key.as_bytes()).unwrap();
+        assert_eq!(Some(vec![]), value_from_db);
+        clear_db(fname).unwrap();
+    }
+}
