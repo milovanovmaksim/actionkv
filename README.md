@@ -22,7 +22,7 @@ cargo build
 
 ## insert запрос
  ```
-cargo run --bin akv_disk test insert apple
+cargo run --bin akv_disk test insert apple 100
  ```
 
 ## get запрос
