@@ -18,6 +18,11 @@ cd actionvk/
 ```
 cargo build
 ```
+5. Запуск тестов.
+```
+cargo test --package actionkv --lib -- test --test-threads=1
+```
+
 # Как использовать:
 
 ## insert запрос
