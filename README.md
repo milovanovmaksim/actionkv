@@ -51,4 +51,4 @@ cargo run --bin akv_disk test update apple 200
 ```
 cargo run --bin akv_disk test delete apple
 ```
-После удаления get запрос вернет пустую строку "".
+После удаления ключа "apple", get запрос вернет пустую строку "".
